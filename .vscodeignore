@@ -1,0 +1,5 @@
+node_modules
+cli
+analyzers
+.github
+.github-action

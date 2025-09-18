@@ -1,0 +1,54 @@
+{
+  "name": "baseline-compat",
+  "displayName": "Baseline Compat",
+  "description": "VS Code extension and CLI for Baseline web compatibility diagnostics and remediation.",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": ">=1.70.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "main": "./src/extension.ts",
+  "scripts": {
+    "test": "jest"
+  },
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Baseline Compat",
+      "properties": {
+        "baselineCompat.threshold": {
+          "type": "number",
+          "default": 95,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum compatibility percentage required to avoid warnings."
+        },
+        "baselineCompat.targets": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["chrome", "firefox", "safari", "edge"],
+          "description": "List of browsers to check for baseline compatibility."
+        },
+        "baselineCompat.level": {
+          "type": "string",
+          "enum": ["warn", "error"],
+          "default": "warn",
+          "description": "Severity level for compatibility issues."
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.5.2",
+    "@types/vscode": "^1.70.0",
+    "jest": "^30.1.3",
+    "ts-jest": "^29.4.3"
+  },
+  "dependencies": {
+    "web-features": "^2.49.0"
+  }
+}
