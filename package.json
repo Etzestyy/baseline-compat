@@ -1,7 +1,18 @@
 {
   "name": "baseline-compat",
   "displayName": "Baseline Compat",
-  "description": "VS Code extension and CLI for Baseline web compatibility diagnostics and remediation.",
+  "description": "Inline diagnostics, quick-fixes, and CI for risky web features. Enforce Baseline browser compatibility in JS/TS/HTML/CSS.",
+  "icon": "icon.png",
+  "publisher": "Etzestyy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Etzestyy/baseline-compat"
+  },
+  "bugs": {
+    "url": "https://github.com/Etzestyy/baseline-compat/issues"
+  },
+  "homepage": "https://github.com/Etzestyy/baseline-compat",
+  "keywords": ["compatibility", "baseline", "web", "diagnostics", "polyfill", "ci", "codeaction"],
   "version": "0.1.0",
   "engines": {
     "vscode": ">=1.70.0"
@@ -10,9 +21,16 @@
     "Linters",
     "Other"
   ],
-  "main": "./src/extension.ts",
+  "main": "./dist/src/extension.js",
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:css",
+    "onLanguage:html"
+  ],
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc"
   },
   "contributes": {
     "configuration": {
