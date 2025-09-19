@@ -3,6 +3,7 @@
 
 import * as vscode from 'vscode';
 import { getFeatureByName } from './baselineClient';
+import { POLYFILL_SNIPPETS } from './autofix';
 
 const GUARD_SNIPPETS: Record<string, string> = {
   'fetch': "if ('fetch' in window) { /* safe usage */ } else { /* fallback */ }",
@@ -22,14 +23,21 @@ export class BaselineQuickFixProvider implements vscode.CodeActionProvider {
       fix.edit.insert(document.uri, range.start, GUARD_SNIPPETS[word] + '\n');
       actions.push(fix);
     }
-    // Polyfill stub quick-fix (example)
-    const polyfillFix = new vscode.CodeAction(`Show polyfill for '${word}'`, vscode.CodeActionKind.QuickFix);
-    polyfillFix.command = {
+    // Polyfill auto-fix quick-fix
+    if (POLYFILL_SNIPPETS[word]) {
+      const polyfillFix = new vscode.CodeAction(`Insert polyfill for '${word}'`, vscode.CodeActionKind.QuickFix);
+      polyfillFix.edit = new vscode.WorkspaceEdit();
+      polyfillFix.edit.insert(document.uri, new vscode.Position(0, 0), POLYFILL_SNIPPETS[word]);
+      actions.push(polyfillFix);
+    }
+    // Polyfill docs quick-fix (example)
+    const polyfillDocsFix = new vscode.CodeAction(`Show polyfill for '${word}'`, vscode.CodeActionKind.QuickFix);
+    polyfillDocsFix.command = {
       title: 'Open polyfill docs',
       command: 'vscode.open',
       arguments: [`https://polyfill.io/v3/polyfill.min.js?features=${word}`]
     };
-    actions.push(polyfillFix);
+    actions.push(polyfillDocsFix);
     // Alternative API snippet (example)
     if (word === 'fetch') {
       const altFix = new vscode.CodeAction('Show XMLHttpRequest fallback', vscode.CodeActionKind.QuickFix);

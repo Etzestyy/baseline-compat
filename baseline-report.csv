@@ -1,0 +1,5 @@
+file,feature,score,safe,framework,polyfillUrl,type,message,line
+"demo/risky.html","","0","false","none","null","accessibility","Image tag missing alt attribute.",""
+"demo/risky.html","","0","false","none","null","internationalization","Hardcoded English text detected.",""
+"demo/risky.js","fetch","100","true","none","null","","",""
+"demo/risky.js","attachShadow","0","false","none","https://polyfill.io/v3/polyfill.min.js?features=attachShadow&ua=chrome,firefox,safari,edge","","",""

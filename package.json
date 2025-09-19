@@ -65,6 +65,23 @@
           "description": "Severity level for compatibility issues."
         }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "baselineCompatSidebar",
+          "title": "Baseline Compat",
+          "icon": "icon.png"
+        }
+      ]
+    },
+    "views": {
+      "baselineCompatSidebar": [
+        {
+          "id": "baselineCompatIssuesView",
+          "name": "Compatibility Issues"
+        }
+      ]
     }
   },
   "devDependencies": {

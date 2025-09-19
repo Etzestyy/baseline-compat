@@ -11,6 +11,7 @@ import { analyzeCss } from '../analyzers/cssAnalyzer';
 import { analyzeHtml } from '../analyzers/htmlAnalyzer';
 import { getPolyfillUrl } from '../src/polyfillProvider';
 import { analyzeAccessibilityIntl } from '../analyzers/accessibilityIntlAnalyzer';
+import { autoFixFile } from '../src/autofix';
 
 const threshold = Number(process.env.BASELINE_THRESHOLD || 95);
 const framework: FrameworkConfig['framework'] = (process.env.BASELINE_FRAMEWORK as any) || defaultFrameworkConfig.framework;
@@ -78,6 +79,21 @@ function scanDir(dir: string): any[] {
   return results;
 }
 
+async function scanFiles(files: string[], options: any) {
+  let results: any[] = [];
+  for (const file of files) {
+    const fileResults = scanFile(file);
+    results = results.concat(fileResults);
+    if (options.autoFix) {
+      const fixed = autoFixFile(file, fileResults);
+      if (fixed) {
+        console.log(`Auto-fixed: ${file}`);
+      }
+    }
+  }
+  return results;
+}
+
 async function main() {
   const root = process.argv[2] || process.cwd();
   const results = scanDir(root);
@@ -105,13 +121,14 @@ async function main() {
           message: {
             text: `Feature '${r.feature}' is below baseline threshold (${r.score}%)` +
               (r.polyfillUrl ? `\nPolyfill recommendation: ${r.polyfillUrl}` : '') +
-              `\nSuggested resolution: Wrap with feature-detection or use a polyfill.`
+              `\nSuggested resolution: Wrap with feature-detection or use a polyfill.` +
+              (r.message ? `\n${r.message}` : '')
           },
           locations: [
             {
               physicalLocation: {
                 artifactLocation: { uri: r.file },
-                region: { startLine: 1 }
+                region: { startLine: r.line || 1 }
               }
             }
           ],
@@ -119,13 +136,28 @@ async function main() {
           properties: {
             impact: 'Potential breakage or degraded experience in non-baseline browsers.',
             polyfill: r.polyfillUrl || '',
-            resolution: 'Wrap with feature-detection or use a polyfill.'
+            resolution: r.message || 'Wrap with feature-detection or use a polyfill.'
           }
         }))
       }
     ]
   };
   fs.writeFileSync('baseline-report.sarif', JSON.stringify(sarif, null, 2));
+
+  // Output CSV for further analysis
+  const csvHeader = 'file,feature,score,safe,framework,polyfillUrl,type,message,line\n';
+  const csvRows = results.map(r => [
+    r.file,
+    r.feature,
+    r.score,
+    r.safe,
+    r.framework,
+    r.polyfillUrl,
+    r.type || '',
+    r.message || '',
+    r.line || ''
+  ].map(x => `"${x}"`).join(',')).join('\n');
+  fs.writeFileSync('baseline-report.csv', csvHeader + csvRows);
 
   // Output PR comment summary
   const risky = results.filter(r => !r.safe).sort((a, b) => a.score - b.score).slice(0, 5);
@@ -153,4 +185,11 @@ async function main() {
   }
 }
 
-main();
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const autoFix = args.includes('--auto-fix');
+  const root = args.find(arg => !arg.startsWith('--')) || process.cwd();
+  scanFiles([root], { autoFix });
+} else {
+  main();
+}

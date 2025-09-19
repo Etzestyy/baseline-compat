@@ -1,0 +1,14 @@
+name: Label Good First Issues
+on:
+  issues:
+    types: [opened]
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add good first issue label
+        if: github.event.issue.title != '' && contains(github.event.issue.labels.*.name, 'good first issue') == false
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: good first issue

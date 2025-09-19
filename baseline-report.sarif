@@ -13,7 +13,7 @@
         {
           "ruleId": "",
           "message": {
-            "text": "Feature '' is below baseline threshold (0%)\nSuggested resolution: Wrap with feature-detection or use a polyfill."
+            "text": "Feature '' is below baseline threshold (0%)\nSuggested resolution: Wrap with feature-detection or use a polyfill.\nImage tag missing alt attribute."
           },
           "locations": [
             {
@@ -31,13 +31,13 @@
           "properties": {
             "impact": "Potential breakage or degraded experience in non-baseline browsers.",
             "polyfill": "",
-            "resolution": "Wrap with feature-detection or use a polyfill."
+            "resolution": "Image tag missing alt attribute."
           }
         },
         {
           "ruleId": "",
           "message": {
-            "text": "Feature '' is below baseline threshold (0%)\nSuggested resolution: Wrap with feature-detection or use a polyfill."
+            "text": "Feature '' is below baseline threshold (0%)\nSuggested resolution: Wrap with feature-detection or use a polyfill.\nHardcoded English text detected."
           },
           "locations": [
             {
@@ -55,7 +55,7 @@
           "properties": {
             "impact": "Potential breakage or degraded experience in non-baseline browsers.",
             "polyfill": "",
-            "resolution": "Wrap with feature-detection or use a polyfill."
+            "resolution": "Hardcoded English text detected."
           }
         },
         {
