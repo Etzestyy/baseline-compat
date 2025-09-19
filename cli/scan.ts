@@ -4,11 +4,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { getFeatureByName, featureCompatibilityScore } from '../src/baselineClient';
+import { defaultFrameworkConfig, FrameworkConfig } from '../src/frameworkConfig';
+import { frameworkRules } from '../src/frameworkRules';
 import { analyzeJs } from '../analyzers/jsAnalyzer';
 import { analyzeCss } from '../analyzers/cssAnalyzer';
 import { analyzeHtml } from '../analyzers/htmlAnalyzer';
+import { getPolyfillUrl } from '../src/polyfillProvider';
+import { analyzeAccessibilityIntl } from '../analyzers/accessibilityIntlAnalyzer';
 
 const threshold = Number(process.env.BASELINE_THRESHOLD || 95);
+const framework: FrameworkConfig['framework'] = (process.env.BASELINE_FRAMEWORK as any) || defaultFrameworkConfig.framework;
 const targets = (process.env.BASELINE_TARGETS || 'chrome,firefox,safari,edge').split(',');
 
 function scanFile(filePath: string) {
@@ -18,16 +23,46 @@ function scanFile(filePath: string) {
   if (ext === '.js' || ext === '.ts') findings = analyzeJs(source);
   if (ext === '.css') findings = analyzeCss(source);
   if (ext === '.html') findings = analyzeHtml(source);
-  return findings.map(finding => {
+  const results = findings.map(finding => {
     const feature = getFeatureByName(finding.featureName);
-    const score = featureCompatibilityScore(feature, targets);
+    let score = featureCompatibilityScore(feature, targets);
+    // Adjust compatibility for selected framework
+    if (framework !== 'none') {
+      const rules = frameworkRules[framework];
+      for (const rule of rules) {
+        if (rule.adjust(finding.featureName)) {
+          // Example: boost score for polyfilled features
+          score = Math.max(score, 95);
+        }
+      }
+    }
+    // Add polyfill recommendation if feature is risky
+    let polyfillUrl = null;
+    if (score < threshold) {
+      polyfillUrl = getPolyfillUrl(finding.featureName, targets);
+    }
     return {
       file: filePath,
       feature: finding.featureName,
       score,
-      safe: score >= threshold
+      safe: score >= threshold,
+      framework,
+      polyfillUrl
     };
   });
+  // Accessibility and internationalization checks
+  const a11yIntlIssues = analyzeAccessibilityIntl(source, filePath);
+  return results.concat(a11yIntlIssues.map(issue => ({
+    file: issue.file,
+    feature: '',
+    score: 0,
+    safe: false,
+    framework,
+    polyfillUrl: null,
+    type: issue.type,
+    message: issue.message,
+    line: issue.line
+  })));
 }
 
 function scanDir(dir: string): any[] {
@@ -50,10 +85,6 @@ async function main() {
   const total = results.length;
   const percentSafe = total ? Math.round((safeCount / total) * 100) : 100;
   console.log(`Baseline compatibility: ${percentSafe}% (${safeCount}/${total} features safe)`);
-  if (percentSafe < threshold) {
-    console.error(`ERROR: Compatibility below threshold (${threshold}%)`);
-    process.exit(1);
-  }
   // Output JSON summary
   fs.writeFileSync('baseline-report.json', JSON.stringify(results, null, 2));
 
@@ -71,7 +102,11 @@ async function main() {
         },
         results: results.filter(r => !r.safe).map(r => ({
           ruleId: r.feature,
-          message: { text: `Feature '${r.feature}' is below baseline threshold (${r.score}%)` },
+          message: {
+            text: `Feature '${r.feature}' is below baseline threshold (${r.score}%)` +
+              (r.polyfillUrl ? `\nPolyfill recommendation: ${r.polyfillUrl}` : '') +
+              `\nSuggested resolution: Wrap with feature-detection or use a polyfill.`
+          },
           locations: [
             {
               physicalLocation: {
@@ -80,7 +115,12 @@ async function main() {
               }
             }
           ],
-          level: 'warning'
+          level: 'warning',
+          properties: {
+            impact: 'Potential breakage or degraded experience in non-baseline browsers.',
+            polyfill: r.polyfillUrl || '',
+            resolution: 'Wrap with feature-detection or use a polyfill.'
+          }
         }))
       }
     ]
@@ -92,7 +132,11 @@ async function main() {
   let comment = `## Baseline Compat Scan\n`;
   comment += `**Top 5 risky features:**\n`;
   risky.forEach(r => {
-    comment += `- [31m${r.feature}[0m in [34m${r.file}[0m (${r.score}%)\n`;
+    comment += `- ${r.feature} in ${r.file} (${r.score}%)`;
+    if (r.polyfillUrl) {
+      comment += `\n  Polyfill: ${r.polyfillUrl}`;
+    }
+    comment += `\n`;
   });
   if (risky.length) {
     comment += `\n**Sample remediation:**\n`;
@@ -102,6 +146,11 @@ async function main() {
     comment += `All scanned features meet the baseline threshold.\n`;
   }
   fs.writeFileSync('baseline-pr-comment.md', comment);
+
+  if (percentSafe < threshold) {
+    console.error(`ERROR: Compatibility below threshold (${threshold}%)`);
+    process.exit(1);
+  }
 }
 
 main();

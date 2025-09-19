@@ -1,0 +1,88 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Baseline Compat",
+          "informationUri": "https://web-features.explore.dev/",
+          "rules": []
+        }
+      },
+      "results": [
+        {
+          "ruleId": "",
+          "message": {
+            "text": "Feature '' is below baseline threshold (0%)\nSuggested resolution: Wrap with feature-detection or use a polyfill."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "demo/risky.html"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "level": "warning",
+          "properties": {
+            "impact": "Potential breakage or degraded experience in non-baseline browsers.",
+            "polyfill": "",
+            "resolution": "Wrap with feature-detection or use a polyfill."
+          }
+        },
+        {
+          "ruleId": "",
+          "message": {
+            "text": "Feature '' is below baseline threshold (0%)\nSuggested resolution: Wrap with feature-detection or use a polyfill."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "demo/risky.html"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "level": "warning",
+          "properties": {
+            "impact": "Potential breakage or degraded experience in non-baseline browsers.",
+            "polyfill": "",
+            "resolution": "Wrap with feature-detection or use a polyfill."
+          }
+        },
+        {
+          "ruleId": "attachShadow",
+          "message": {
+            "text": "Feature 'attachShadow' is below baseline threshold (0%)\nPolyfill recommendation: https://polyfill.io/v3/polyfill.min.js?features=attachShadow&ua=chrome,firefox,safari,edge\nSuggested resolution: Wrap with feature-detection or use a polyfill."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "demo/risky.js"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "level": "warning",
+          "properties": {
+            "impact": "Potential breakage or degraded experience in non-baseline browsers.",
+            "polyfill": "https://polyfill.io/v3/polyfill.min.js?features=attachShadow&ua=chrome,firefox,safari,edge",
+            "resolution": "Wrap with feature-detection or use a polyfill."
+          }
+        }
+      ]
+    }
+  ]
+}

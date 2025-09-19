@@ -1,0 +1,38 @@
+[
+  {
+    "file": "demo/risky.html",
+    "feature": "",
+    "score": 0,
+    "safe": false,
+    "framework": "none",
+    "polyfillUrl": null,
+    "type": "accessibility",
+    "message": "Image tag missing alt attribute."
+  },
+  {
+    "file": "demo/risky.html",
+    "feature": "",
+    "score": 0,
+    "safe": false,
+    "framework": "none",
+    "polyfillUrl": null,
+    "type": "internationalization",
+    "message": "Hardcoded English text detected."
+  },
+  {
+    "file": "demo/risky.js",
+    "feature": "fetch",
+    "score": 100,
+    "safe": true,
+    "framework": "none",
+    "polyfillUrl": null
+  },
+  {
+    "file": "demo/risky.js",
+    "feature": "attachShadow",
+    "score": 0,
+    "safe": false,
+    "framework": "none",
+    "polyfillUrl": "https://polyfill.io/v3/polyfill.min.js?features=attachShadow&ua=chrome,firefox,safari,edge"
+  }
+]

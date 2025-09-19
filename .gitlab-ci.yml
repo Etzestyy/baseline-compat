@@ -1,0 +1,20 @@
+# .gitlab-ci.yml
+# Baseline Compat scan for GitLab CI
+
+stages:
+  - baseline-compat
+
+baseline_compat_scan:
+  stage: baseline-compat
+  image: node:22
+  script:
+    - npm install
+    - npx ts-node cli/scan.ts demo/
+  artifacts:
+    paths:
+      - baseline-report.json
+      - baseline-report.sarif
+      - baseline-pr-comment.md
+  only:
+    - merge_requests
+    - main

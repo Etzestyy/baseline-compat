@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baseline Compat Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    h1 { color: #2c3e50; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1em; }
+    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: left; }
+    th { background: #f4f4f4; }
+    .safe { color: green; }
+    .risky { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Baseline Compatibility Dashboard</h1>
+  <div id="dashboard"></div>
+  <h2>Community Compatibility Data</h2>
+  <form id="communityForm" style="margin-bottom:2em;">
+    <label>Feature: <input name="feature" required></label>
+    <label>Browser: <input name="browser" required></label>
+    <label>Support: <select name="support"><option value="true">Yes</option><option value="false">No</option></select></label>
+    <label>Contributor: <input name="contributor" required></label>
+    <label>Notes: <input name="notes"></label>
+    <button type="submit">Submit</button>
+  </form>
+  <div id="community"></div>
+  <script>
+    document.getElementById('communityForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const entry = {
+        feature: form.feature.value,
+        browser: form.browser.value,
+        support: form.support.value === 'true',
+        contributor: form.contributor.value,
+        notes: form.notes.value
+      };
+      // Submit via POST to a local server endpoint (requires backend support)
+      try {
+        const res = await fetch('/community-submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(entry)
+        });
+        if (res.ok) {
+          alert('Submission successful!');
+          loadCommunityData();
+        } else {
+          alert('Submission failed.');
+        }
+      } catch {
+        alert('Submission not supported in static mode. Use CLI tool for now.');
+      }
+    });
+    async function loadReport() {
+      try {
+        const response = await fetch('../baseline-report.json');
+        const data = await response.json();
+        renderDashboard(data);
+      } catch (err) {
+        document.getElementById('dashboard').innerText = 'Could not load report.';
+      }
+    }
+    async function loadCommunityData() {
+      try {
+        const response = await fetch('../community-compat-data.json');
+        const data = await response.json();
+        renderCommunity(data);
+      } catch (err) {
+        document.getElementById('community').innerText = 'No community data available.';
+      }
+    }
+    function renderDashboard(results) {
+      let html = '<table><tr><th>File</th><th>Feature</th><th>Score</th><th>Status</th><th>Framework</th><th>Polyfill</th></tr>';
+      results.forEach(r => {
+        html += `<tr>
+          <td>${r.file}</td>
+          <td>${r.feature}</td>
+          <td>${r.score}%</td>
+          <td class="${r.safe ? 'safe' : 'risky'}">${r.safe ? 'Safe' : 'Risky'}</td>
+          <td>${r.framework || ''}</td>
+          <td>${r.polyfillUrl ? `<a href="${r.polyfillUrl}" target="_blank">Polyfill</a>` : ''}</td>
+        </tr>`;
+      });
+      html += '</table>';
+      document.getElementById('dashboard').innerHTML = html;
+    }
+    function renderCommunity(data) {
+      let html = '<table><tr><th>Feature</th><th>Browser</th><th>Support</th><th>Contributor</th><th>Notes</th></tr>';
+      data.forEach(entry => {
+        html += `<tr>
+          <td>${entry.feature}</td>
+          <td>${entry.browser}</td>
+          <td>${entry.support ? 'Yes' : 'No'}</td>
+          <td>${entry.contributor}</td>
+          <td>${entry.notes || ''}</td>
+        </tr>`;
+      });
+      html += '</table>';
+      document.getElementById('community').innerHTML = html;
+    }
+    loadReport();
+    loadCommunityData();
+  </script>
+</body>
+</html>
