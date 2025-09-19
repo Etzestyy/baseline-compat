@@ -22,6 +22,14 @@
     "Other"
   ],
   "main": "./dist/src/extension.js",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "icon.png",
+    "README.md",
+    "DEMO.md"
+  ],
+  "extensionKind": ["workspace", "ui"],
   "activationEvents": [
     "onLanguage:javascript",
     "onLanguage:typescript",
