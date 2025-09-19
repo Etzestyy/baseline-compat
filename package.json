@@ -3,7 +3,7 @@
   "displayName": "Baseline Compat",
   "description": "Inline diagnostics, quick-fixes, and CI for risky web features. Enforce Baseline browser compatibility in JS/TS/HTML/CSS.",
   "icon": "icon.png",
-  "publisher": "Etzestyy",
+  "publisher": "etzestyfx",
   "repository": {
     "type": "git",
     "url": "https://github.com/Etzestyy/baseline-compat"
